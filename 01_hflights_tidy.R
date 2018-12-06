@@ -8,6 +8,13 @@
     # Section 1 - tidying data
 
 
+# Note a bug: If you work with tibbles in a script and you're adding
+# other columns to the tibble later in the script, you'll see a
+# Warning(s) "Unknonw or uninitialized column".
+# You can avoid this by working with the data as a data frame
+# rather than a tibble.
+
+
 # envSetup ----------------------------------------------------------------
 
 # set up the envirnoment
@@ -17,22 +24,21 @@
 library("dplyr")
 library("hflights")
 library("tidyr")
-
+options(warn = 1) # shows all warnings immediately
 
 # load, View Data ---------------------------------------------------------
 
 # read in data
 hflights <- hflights::hflights
 
-# Look at the data
+# familiarize yourself with the data
 str(hflights)
-hflights[1:20,]
 
 
 # df to tibble to df again ------------------------------------------------
 
-# create hflights_tbl as tibble
-hflights <- tbl_df(hflights)
+# change hflights from df to tibble
+hflights <- as_tibble(hflights)
 
 # tibbles are a special dataframe that shows you only what fits in your
 # console and adjusts with the size of your window
@@ -41,15 +47,12 @@ hflights
 # the tibble is multiple classes
 class(hflights)
 
-# convert back to dataframe as hflights
+# convert back to dataframe
 hflights <- as.data.frame(hflights)
-class(hflights)
 
-# back to tibble -- using as_tibble() function
-hflights <- as_tibble(hflights)
-class(hflights)
+# back to tibble
+# hflights <- tbl_df(hflights)
 
-str(hflights)
 
 # lookup table ------------------------------------------------------------
 
@@ -65,10 +68,10 @@ lut <- c("AA" = "American", "AS" = "Alaska", "B6" = "JetBlue",
          "FL" = "AirTran", "MQ" = "American_Eagle",
          "XE" = "ExpressJet", "YV" = "Mesa")
 
-class(lut)
 
 # add a Carrier column (base R, not mutate)
 hflights$Carrier <- lut[hflights$UniqueCarrier]
+str(hflights)
 
 # turn UniqueCarrier codes into corresponding names using lut
 hflights$UniqueCarrier <- lut[hflights$UniqueCarrier]
@@ -77,9 +80,6 @@ head(hflights$UniqueCarrier)
 # we went straight down the UniqueCarrier column and we replaced
 # the codes -- AA, AS, DL, UA etc. -- with the corresponding names from lut,
 # our lookup table; American, Alaska, Delta, United etc.
-
-# now you'll see the Carrier variable, looking at variables 19, 20, 21, 22
-str(hflights[19:22])
 
 # notice we have 22 variables now with Carrier
 glimpse(hflights)
@@ -97,42 +97,47 @@ lut <- c("A" = "carrier", "B" = "weather", "C" = "FFA",
 # this will take a few minues -- add a Code column
 hflights$Code <- lut[hflights$CancellationCode]
 
-# class is a "character"
+# class = "character"
 class(hflights$Code)
 hflights$Code[1:500]
 
 
-# looking at a tibble column, we only see the first 10 rows
+# looking at Code column
 hflights %>%
   select(Code)
 
-# remove NA, use glimpse to get a better view of the data
-glimpse(hflights %>%
-               select(Code) %>%
-               filter(!is.na(Code))
-        )
+# look at 'Code' column, NAs removed
+hflights %>%
+  select(Code) %>%
+  filter(!is.na(Code))
 
-# still not great, but you can use View()
-glimpse(hflights %>%
-          select(Code) %>%
-          filter(!is.na(Code))
-) %>% View()
+# remove NA, use View() to show 'Code' column
+hflights %>%
+  select(Code) %>%
+  filter(!is.na(Code))%>% 
+  View()
 
 # change NA to "not cancelled" using tidyr
-
+hflights <- hflights %>%
+  replace_na(list(Code = "not cancelled"))
 
 # see column Code
 str(hflights)
 
+# drop 'CancellationCode' column
+hflights <- select(hflights, -CancellationCode)
 
-
-# tbl back to df ----------------------------------------------------------
-
-# from hflights package, call data hflights, and assign back to hflights
-hflights <- hflights::hflights
+# move Diverted to end -- select all except diverted, then reselect 
+hflights <- select(hflights, -Diverted, Diverted)
 str(hflights)
 
+# rename 'Code' column to 'CancellationCode'
+hflights <- rename(hflights, CancellationCode = Code)
+str(hflights)
 
+# create a backup checkpoint in case hflights is manipulated incorrectly
+backup <- hflights
+head(backup)
 
 
 # Section 2: Select & Mutate ----------------------------------------------
