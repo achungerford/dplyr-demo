@@ -143,10 +143,12 @@ head(backup)
 # Section 2: Select & Mutate ----------------------------------------------
 
 # select() will remove rows, returning only the ones we've chosen
+    # starts_with("abc")
+    # ends_with("xyz")
     # contains("x")
     # matches("x")
-    # ends_with("xyz")
-    # starts_with("abc")
+    # num_range("x", 1:5)
+    # one_of("x") - x is a char vector
 
 
 
