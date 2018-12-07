@@ -140,7 +140,7 @@ backup <- hflights
 head(backup)
 
 
-# Section 2: Select & Mutate ----------------------------------------------
+# Section 2: Select -------------------------------------------------------
 
 # select() will remove rows, returning only the ones we've chosen
     # starts_with("abc")
@@ -149,6 +149,45 @@ head(backup)
     # matches("x")
     # num_range("x", 1:5)
     # one_of("x") - x is a char vector
+
+# print a table with just ArrDelay & DepDelay
+head(select(hflights, contains("Del")))
+
+# combine helper functions with variables to get only
+    # UniqueCarrier, FlightNum, TailNum, Cancelled, & CancellationCode
+head(select(hflights, UniqueCarrier, ends_with("Num"), contains("cell")))
+
+# be concise: Print out a tbl using only helper functions.
+    # Find the most concise way to return the following columns
+    # with select and its helper functions: DepTime, ArrTime,
+    # ActualElapsedTime, AirTime, ArrDelay, DepDelay.
+head(select(hflights, contains("Time"), contains("Delay")))
+
+
+# compare Base R to dplyr -------------------------------------------------
+
+# Base R examples
+ex1r <- hflights[c("TaxiIn", "TaxiOut", "Distance")]
+ex2r <- hflights[c("Year", "Month", "DayOfWeek", "DepTime", "ArrTime")]
+ex3r <- hflights[c("TailNum", "TaxiIn", "TaxiOut")]
+
+# dplyr examples (compare to above)
+ex1d <- select(hflights, TaxiIn, TaxiOut, Distance)
+ex2d <- select(hflights, Year:ArrTime, -DayofMonth)
+ex3d <- select(hflights, TailNum, starts_with("Taxi"))
+
+# comparisons
+head(ex1r)
+head(ex1d)
+
+head(ex2r)
+head(ex2d)
+
+head(ex3r)
+head(ex3d)
+
+
+# Mutate() ----------------------------------------------------------------
 
 
 
